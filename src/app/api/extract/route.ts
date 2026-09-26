@@ -12,6 +12,6 @@ export async function POST(request: Request) {
   const catalogue = lineItems.map((x) => `${x.id}: ${x.description}; unit=${x.preferredUnit}`).join("\n");
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [{ text: `Extract a vendor response to this RFx. Never invent values. Match only supported lines. Preserve source price/unit/currency; set needs_review for ambiguous text, unreadable values, absent units, or unsafe conversions. Buyer catalogue:\n${catalogue}\nVendor message:\n${message || "None"}` }];
   for (const file of files.slice(0, 5)) parts.push({ inlineData: { mimeType: file.type || "application/octet-stream", data: Buffer.from(await file.arrayBuffer()).toString("base64") } });
-  try { const ai = new GoogleGenAI({ apiKey }); const result = await ai.models.generateContent({ model: "gemini-3.8-flash", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", responseJsonSchema: schema } }); return NextResponse.json({ extraction: JSON.parse(result.text || "{}") }); }
+  try { const ai = new GoogleGenAI({ apiKey }); const result = await ai.models.generateContent({ model: "gemini-3.5-flash", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", responseJsonSchema: schema } }); return NextResponse.json({ extraction: JSON.parse(result.text || "{}") }); }
   catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Extraction failed" }, { status: 502 }); }
 }
