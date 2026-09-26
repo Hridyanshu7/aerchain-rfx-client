@@ -56,10 +56,10 @@ export const vendors: Vendor[] = [
   { id: "valuecorr", name: "ValueCorr Industries", responseFormats: ["DOCX", "PNG"], eligibility: "ineligible", eligibilityReason: "Declared capacity below required monthly demand", coverage: 30, currency: "INR", responseAt: "2026-10-17T16:50:00+05:30", confidence: "confirmed" },
 ];
 
-export type DemoQuote = { lineItemId: string; vendorId: string; normalizedUnitPrice: number | null; sourceUnit: string; confidence: "confirmed" | "needs_review"; };
+export type DemoQuote = { lineItemId: string; vendorId: string; normalizedUnitPrice: number | null; sourceUnit: string; confidence: "confirmed" | "needs_review"; reviewReason?: string; };
 export const demoQuotes: DemoQuote[] = lineItems.flatMap((item, index) => vendors.map((vendor) => {
-  if (vendor.id === "bharat" && [4, 13, 25].includes(index)) return { lineItemId: item.id, vendorId: vendor.id, normalizedUnitPrice: null, sourceUnit: "Not quoted", confidence: "needs_review" as const };
-  if (vendor.id === "swiftbox" && index % 7 === 0) return { lineItemId: item.id, vendorId: vendor.id, normalizedUnitPrice: null, sourceUnit: "₹42/kg · review", confidence: "needs_review" as const };
+  if (vendor.id === "bharat" && [4, 13, 25].includes(index)) return { lineItemId: item.id, vendorId: vendor.id, normalizedUnitPrice: null, sourceUnit: "Not quoted", confidence: "needs_review" as const, reviewReason: "This SKU is missing from Bharat Packaging’s PDF quotation. A missing quote is not treated as zero cost." };
+  if (vendor.id === "swiftbox" && index % 7 === 0) return { lineItemId: item.id, vendorId: vendor.id, normalizedUnitPrice: null, sourceUnit: "₹42/kg · review", confidence: "needs_review" as const, reviewReason: "The rate card quotes ₹42/kg, while the RFx comparison unit is per piece. No item weight or approved kg-to-piece conversion was supplied." };
   const base = 5.8 + (index % 5) * 0.72;
   const multiplier = vendor.id === "apex" ? 1.08 : vendor.id === "bharat" ? 1.01 : vendor.id === "swiftbox" ? 0.98 : vendor.id === "globalpak" ? 0.94 : 0.87;
   const sourceUnit = vendor.id === "bharat" ? `₹${(base * multiplier * 100).toFixed(0)}/100` : vendor.id === "globalpak" ? `$${((base * multiplier) / 84.2).toFixed(3)}/pc` : `₹${(base * multiplier).toFixed(2)}/pc`;
